@@ -28,6 +28,7 @@ const flightSchema = Schema({
     flightLong: { type: Number, required: true },
     totalFlightTime: { type: Number, required: true },
     totalNightTime: { type: Number },
+    totalPicTime: { type: Number },
     totalTakeoffs: { type: Number },
     totalLands: { type: Number },
     missionNotes: { type: String },

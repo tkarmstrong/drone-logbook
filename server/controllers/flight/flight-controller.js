@@ -33,6 +33,7 @@ exports.assignUserFlightToAircraft = (req, res) => {
             flightLong: req.body.missionData.flightLong,
             totalFlightTime: req.body.missionData.totalFlightTime,
             totalNightTime: req.body.missionData.totalNightTime,
+            totalPicTime: req.body.missionData.totalPicTime,
             totalTakeoffs: req.body.missionData.totalLands,
             totalLands: req.body.missionData.totalLands,
             missionNotes: req.body.missionData.missionNotes,

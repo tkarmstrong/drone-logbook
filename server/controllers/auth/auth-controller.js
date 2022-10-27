@@ -97,27 +97,6 @@ exports.loginUser = (req, res) => {
       });
       return res.status(200).json(token);
     })
-
-    // .then(result => {
-    //   if (!result) {
-    //     console.log('bcrypt result? ', !result)
-    //     return res.status(401).json({
-    //       message: "Authentication failed. Please check your email and password combination and try again."
-    //     });
-    //   }
-    //   const token = jwt.sign({
-    //     id: thisUser._id,
-    //     role: thisUser.role,
-    //     firstName: thisUser.firstName,
-    //     lastName: thisUser.lastName,
-    //   },
-    //   config.web.secret, {
-    //     expiresIn: 86400, // 24 hours
-    //   });
-
-    //   return res.status(200).json(token);
-    // })
-
     .catch(err => {
       console.log('err: ', err);
       return res.status(401).json({

@@ -8,7 +8,7 @@ function checkToken(req, res, next) {
   if (!req.headers['authorization']) {
     return res.status(403).send({ auth: false, message: 'No token provided.' });
   } else {
-    // Set token in rersponse
+    // Set token in response
     const bearerHeader = req.headers['authorization'];
     const bearer = bearerHeader.split(' ');
     const bearerToken = bearer[1];
