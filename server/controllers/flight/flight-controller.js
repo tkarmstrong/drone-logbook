@@ -2,7 +2,7 @@ const Flight = require('../../models/flight');
 const Aircraft = require('../../models/aircraft');
 
 const jwt = require('jsonwebtoken');
-const config = require('../../configs/config');
+const config = require('../../config');
 
 const notAuthorized = { message: 'You are not authorized to access this feature.' };
 

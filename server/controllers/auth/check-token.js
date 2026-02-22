@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const config = require('../../configs/config');
+const config = require('../../config');
 // const cookieParser = require('cookie-parser');
 
 // ********* Get Token ********* //

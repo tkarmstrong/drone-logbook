@@ -1,27 +1,74 @@
-# DroneLogbook
+# Drone Logbook
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.5.
+A drone flight logbook app with a React frontend and Express + MongoDB backend.
 
-## Development server
+## Stack
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- **Frontend**: React, React Router, React Query (TanStack Query), Vite, TypeScript
+- **Backend**: Express, MongoDB (Mongoose), JWT auth
 
-## Code scaffolding
+## Prerequisites
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Node.js 16+
+- MongoDB Atlas (or local MongoDB)
+
+## Setup
+
+1. Clone the repo and install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Create `server/config.js` with your database credentials and JWT secret (use `server/config.js.example` as a template if provided).
+
+3. Ensure MongoDB Atlas connection string in `server/app.js` matches your cluster hostname.
+
+## Development
+
+- **Frontend dev server** (Vite, hot reload, proxies `/api` to backend):
+
+  ```bash
+  npm run dev
+  ```
+
+  Open http://localhost:5173
+
+- **Backend only** (Express + MongoDB, serves built frontend if present):
+
+  ```bash
+  npm run server
+  ```
+
+  Runs on http://localhost:3000
+
+- **Full app** (build frontend + start backend):
+
+  ```bash
+  npm run localhost
+  ```
+
+  Serves the app at http://localhost:3000
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+npm run build
+```
 
-## Running unit tests
+Output is in `dist/drone-logbook`. The Express server serves these static files.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Project Structure
 
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+```
+├── src/                 # React frontend (Vite)
+│   ├── api/             # API client and React Query hooks
+│   ├── components/
+│   ├── pages/
+│   └── main.tsx
+├── server/              # Express backend
+│   ├── controllers/
+│   ├── models/
+│   └── app.js
+└── dist/drone-logbook/  # Built frontend (after npm run build)
+```

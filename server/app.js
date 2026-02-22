@@ -1,4 +1,4 @@
-const config = require('./configs/config');
+const config = require('./config');
 const express = require('express');
 const http = require('http');
 const morgan = require('morgan');
@@ -14,8 +14,8 @@ const flightController = require('./controllers/flight/flight-controller');
 // Middleware Controllers
 const checkToken = require('./controllers/auth/check-token');
 
-const dbUser = config.web.dbUser;
-const dbPassword = config.web.dbPassword;
+const dbUser = config.dbUser;
+const dbPassword = config.dbPassword;
 
 let app = express();
 const router = express.Router();
@@ -32,8 +32,9 @@ app.use('/api', router);
 const serverPort = process.env.PORT || 3000;
 
 /************************* Mongoose connection strings  ***************/
+mongoose.set('strictQuery', false);
 // Connect to DB
-const mongoDB = "mongodb+srv://" + dbUser + ":" + dbPassword + "@cluster0.i41czua.mongodb.net/drone-logbook?retryWrites=true&w=majority";
+const mongoDB = "mongodb+srv://" + dbUser + ":" + dbPassword + "@cluster0.pozdgnq.mongodb.net/drone-logbook?retryWrites=true&w=majority";
 mongoose.connect(mongoDB, {
   useNewUrlParser: true
 });

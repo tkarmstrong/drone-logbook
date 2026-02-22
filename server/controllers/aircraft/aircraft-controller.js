@@ -1,7 +1,7 @@
 let Aircraft = require('../../models/aircraft');
 
 const jwt = require('jsonwebtoken');
-const config = require('../../configs/config');
+const config = require('../../config');
 
 const notAuthorized = {
   error: 401,

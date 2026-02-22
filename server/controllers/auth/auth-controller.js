@@ -2,7 +2,7 @@ let User = require('../../models/user');
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const config = require('../../configs/config');
+const config = require('../../config');
 
 const notAdmin = {
   error: 403,
