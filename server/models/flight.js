@@ -31,12 +31,19 @@ const flightSchema = Schema({
     totalPicTime: { type: Number },
     totalTakeoffs: { type: Number },
     totalLands: { type: Number },
+    maxAltitude: { type: Number },
+    airspaceClass: { type: String },
+    authorization: { type: String },
+    preflightChecklistComplete: { type: Boolean, default: false },
+    batterySerials: [{ type: String }],
+    preFlightVoltage: { type: Number },
+    postFlightVoltage: { type: Number },
     missionNotes: { type: String },
     missionExperience: { type: String, required: true },
     otherNotes: { type: String },
   },
   flightData: {
-    flightLegs: [ flightLeg ],
+    flightLegs: [flightLeg],
   },
   weatherData: {
     weatherNotes: { type: String },
@@ -48,5 +55,4 @@ const flightSchema = Schema({
   collection: 'flights',
 });
 
-// Export the model so its publicly available.
 module.exports = mongoose.model('Flight', flightSchema);

@@ -7,81 +7,89 @@ const config = require('../../config');
 const notAuthorized = { message: 'You are not authorized to access this feature.' };
 
 exports.assignUserFlightToAircraft = (req, res) => {
-  // 1. Check if user is authorized
-  if(!req.auth) {
+  if (!req.auth) {
     return res.status(403).json(notAuthorized);
   }
 
-  Aircraft.findOne( {aircraftId: req.body.aircraftData.aircraftId}, (err, aircraft) => {
+  const aircraftId = req.body.aircraftData?.aircraftId;
+  if (!aircraftId) {
+    return res.status(400).json({ error: 'aircraftData.aircraftId is required' });
+  }
+
+  Aircraft.findById(aircraftId, (err, aircraft) => {
     if (err) {
       return res.status(500).json(err);
-    } else {
-      if(aircraft) {
-        const newFlight = {
-          userData: {
-            pilot: req.body.userData.pilot,
-            pilotExemptionNumber: req.body.userData.pilotExemptionNumber,
-            spotterName: req.body.userData.spotterName,
-          },
-          aircraftData: {
-            aircraftId: req.body.aircraftData.aircraftId,
-          },
-          missionData: {
-            dateOfFlight: req.body.missionData.dateOfFlight,
-            location: req.body.missionData.location,
-            flightLat: req.body.missionData.flightLat,
-            flightLong: req.body.missionData.flightLong,
-            totalFlightTime: req.body.missionData.totalFlightTime,
-            totalNightTime: req.body.missionData.totalNightTime,
-            totalPicTime: req.body.missionData.totalPicTime,
-            totalTakeoffs: req.body.missionData.totalLands,
-            totalLands: req.body.missionData.totalLands,
-            missionNotes: req.body.missionData.missionNotes,
-            missionExperience: req.body.missionData.missionExperience,
-            otherNotes: req.body.missionData.otherNotes
-          },
-          flightData: {
-            flightLegs:
-              req.body.flightData.flightLegs
-          },
-          weatherData: {
-            weatherNotes: req.body.weatherData.weatherNotes,
-          }
-        }
-
-        // Save aircraft to db
-        Flight.create(newFlight, (err) => {
-          if(err) {
-            return res.status(500).json(err)
-          }
-          return res.json(newFlight)
-        })
-      } else {
-        // Aircraft does not exist
-        return res.status(204).json({error: 'This aircraft does not exist'})
-      }
     }
-  })
+    if (!aircraft) {
+      return res.status(404).json({ error: 'This aircraft does not exist' });
+    }
+
+    const md = req.body.missionData || {};
+    const newFlight = {
+      userData: {
+        pilot: req.userId,
+        pilotExemptionNumber: req.body.userData?.pilotExemptionNumber ?? '',
+        spotterName: req.body.userData?.spotterName,
+      },
+      aircraftData: {
+        aircraftId: aircraftId,
+      },
+      missionData: {
+        dateOfFlight: md.dateOfFlight,
+        location: md.location,
+        flightLat: md.flightLat,
+        flightLong: md.flightLong,
+        totalFlightTime: md.totalFlightTime,
+        totalNightTime: md.totalNightTime,
+        totalPicTime: md.totalPicTime,
+        totalTakeoffs: md.totalTakeoffs,
+        totalLands: md.totalLands,
+        maxAltitude: md.maxAltitude,
+        airspaceClass: md.airspaceClass,
+        authorization: md.authorization,
+        preflightChecklistComplete: md.preflightChecklistComplete ?? false,
+        batterySerials: md.batterySerials,
+        preFlightVoltage: md.preFlightVoltage,
+        postFlightVoltage: md.postFlightVoltage,
+        missionNotes: md.missionNotes,
+        missionExperience: md.missionExperience ?? '',
+        otherNotes: md.otherNotes,
+      },
+      flightData: {
+        flightLegs: req.body.flightData?.flightLegs ?? [],
+      },
+      weatherData: {
+        weatherNotes: req.body.weatherData?.weatherNotes,
+      },
+    };
+
+    Flight.create(newFlight, (err, created) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      return res.status(201).json(created);
+    });
+  });
 }
 
 exports.getUserFlights = (req, res) => {
-  if(!req.auth) {
+  if (!req.auth) {
     return res.status(403).json(notAuthorized);
   }
 
-  Flight.findOne({pilot: req.userId})
+  Flight.find({ 'userData.pilot': req.userId })
     .populate('aircraftData.aircraftId')
-    .populate('userData.pilot', {_id: 0, firstName: 1, lastName: 1})
+    .populate('userData.pilot', 'firstName lastName')
+    .sort({ 'missionData.dateOfFlight': -1 })
     .exec((err, flights) => {
-      if(err) {
+      if (err) {
         return res.status(500).json({
           error: err,
-          message: 'There was an error retrieving flights assigned to user.'
-        })
-      } else {
-        return res.json(flights)
+          message: 'There was an error retrieving flights assigned to user.',
+        });
       }
-    })
+      return res.json(flights);
+    });
 }
 
 exports.getUserIndividualFlightById = (req, res) => {
@@ -111,23 +119,24 @@ exports.getUserFlightsByAircraftId = (req, res) => {
     return res.status(403).json(notAuthorized);
   }
 
-  // Query all flights assigned to aircraft serial number
-  Flight.findOne({ aircraftId: req.params.aircraftId })
+  Flight.find({ 'aircraftData.aircraftId': req.params.aircraftId })
     .populate('aircraftData.aircraftId')
     .populate('userData.pilot', {_id: 0, firstName: 1, lastName: 1})
+    .populate('aircraftData.aircraftId')
+    .populate('userData.pilot', 'firstName lastName')
+    .sort({ 'missionData.dateOfFlight': -1 })
     .exec((err, flights) => {
-      console.log(flights)
-      if(err) {
+      if (err) {
         return res.status(500).json({
           error: 500,
-          message: 'There was an error retrieving flights assigned to aircraft serial number.'
-        })
-      } else if(flights === null || flights.length === 0) {
-        return res.status(200).json({message: "This aircraft does not have any flights logged yet. Log a flight and come back."})
-      } else {
-        return res.status(200).json(flights)
+          message: 'There was an error retrieving flights assigned to aircraft.',
+        });
       }
-    })
+      if (!flights || flights.length === 0) {
+        return res.status(200).json({ message: 'This aircraft does not have any flights logged yet.' });
+      }
+      return res.status(200).json(flights);
+    });
 }
 
 exports.deleteUserIndividualFlightById = (req, res) => {
