@@ -17,25 +17,27 @@ exports.assignAircraftToUser = (req, res) => {
         console.log(err);
         return res.json(err);
       } else {
-        if(!aircraft) {
+        if (!aircraft) {
           const newAircraft = {
             userAssigned: req.userId,
             dateActivated: req.body.dateActivated,
             make: req.body.make,
             model: req.body.model,
+            registrationNumber: req.body.registrationNumber,
+            registrationExpiration: req.body.registrationExpiration ? new Date(req.body.registrationExpiration) : undefined,
             flightControllerSerialNumber: req.body.flightControllerSerialNumber,
             aircraftSerialNumber: req.body.aircraftSerialNumber,
             propNumber: req.body.propNumber,
-            notes: req.body.notes
-          }
-          // 3. Save aircraft to db
-          Aircraft.create(newAircraft, (err) => {
-            if(err) {
-              console.log(err)
-              return res.status(500).json(err)
+            maintenance: req.body.maintenance || [],
+            notes: req.body.notes,
+          };
+          Aircraft.create(newAircraft, (err, created) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json(err);
             }
-            return res.json(newAircraft)
-          })
+            return res.status(201).json(created);
+          });
         } else {
           return res.json({error: 'Oops this aircraft already exists.'})
         }
@@ -101,11 +103,14 @@ exports.updateAircraftBySerialNumber = (req, res) => {
           dateActivated: req.body.dateActivated,
           make: req.body.make,
           model: req.body.model,
+          registrationNumber: req.body.registrationNumber,
+          registrationExpiration: req.body.registrationExpiration ? new Date(req.body.registrationExpiration) : undefined,
           flightControllerSerialNumber: req.body.flightControllerSerialNumber,
           aircraftSerialNumber: req.body.aircraftSerialNumber,
           dateModified: new Date(),
           propNumber: req.body.propNumber,
-          notes: req.body.notes
+          maintenance: req.body.maintenance !== undefined ? req.body.maintenance : aircraft.maintenance,
+          notes: req.body.notes,
         });
         // Save to db
         aircraft.save(aircraft, (err) => {

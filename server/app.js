@@ -1,3 +1,4 @@
+require('dotenv').config();
 const config = require('./config');
 const express = require('express');
 const http = require('http');
@@ -16,6 +17,11 @@ const checkToken = require('./controllers/auth/check-token');
 
 const dbUser = config.dbUser;
 const dbPassword = config.dbPassword;
+
+if (!dbUser || !dbPassword) {
+  console.error('Missing DB credentials. Set DB_USER and DB_PASSWORD in .env (see .env.example).');
+  process.exit(1);
+}
 
 let app = express();
 const router = express.Router();

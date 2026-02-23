@@ -80,13 +80,13 @@ exports.loginUser = (req, res) => {
         });
       }
       thisUser = user;
-      let result = bcrypt.compare(req.body.password, user.password);
-      if(!result) {
-        return res.status(401).json({
-          message: "Authentication failed. Please check your email and password combination and try again."
-        })
-      }
-      const token = jwt.sign({
+      return bcrypt.compare(req.body.password, user.password).then((match) => {
+        if (!match) {
+          return res.status(401).json({
+            message: "Authentication failed. Please check your email and password combination and try again."
+          });
+        }
+        const token = jwt.sign({
         id: thisUser._id,
         isAdmin: thisUser.isAdmin,
         firstName: thisUser.firstName,
@@ -95,7 +95,8 @@ exports.loginUser = (req, res) => {
       config.web.secret, {
         expiresIn: 86400, // 24 hours
       });
-      return res.status(200).json(token);
+        return res.status(200).json(token);
+      });
     })
     .catch(err => {
       console.log('err: ', err);
